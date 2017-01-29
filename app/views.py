@@ -6,7 +6,7 @@ This file creates your application.
 """
 import os
 from app import app
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, session, abort
 
 
 ###
@@ -26,6 +26,9 @@ def about():
 
 @app.route('/add', methods=['POST', 'GET'])
 def add_file():
+    if not session.get('logged_in'):
+        abort(401)
+
     filefolder = app.config["UPLOAD_FOLDER"]
 
     if request.method == 'POST':
@@ -37,6 +40,24 @@ def add_file():
         return redirect(url_for('home'))
 
     return render_template('add_file.html')
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != 'password123':
+            error = 'Invalid username or password'
+        else:
+            session['logged_in'] = True
+            # flash('You were logged in')
+            return redirect(url_for('add_file'))
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    flash('You were logged out')
+    return redirect(url_for('home'))
 
 
 ###
