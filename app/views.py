@@ -4,9 +4,9 @@ Jinja2 Documentation:    http://jinja.pocoo.org/2/documentation/
 Werkzeug Documentation:  http://werkzeug.pocoo.org/documentation/
 This file creates your application.
 """
-
+import os
 from app import app
-from flask import render_template, request, redirect, url_for
+from flask import render_template, request, redirect, url_for, flash
 
 
 ###
@@ -23,6 +23,20 @@ def home():
 def about():
     """Render the website's about page."""
     return render_template('about.html', name="Mary Jane")
+
+@app.route('/add', methods=['POST', 'GET'])
+def add_file():
+    filefolder = app.config["UPLOAD_FOLDER"]
+
+    if request.method == 'POST':
+        file = request.files['file']
+        filename = file.filename
+        file.save(os.path.join(filefolder, filename))
+
+        flash('File Saved')
+        return redirect(url_for('home'))
+
+    return render_template('add_file.html')
 
 
 ###
