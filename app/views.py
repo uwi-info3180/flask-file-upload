@@ -7,6 +7,7 @@ This file creates your application.
 import os
 from app import app
 from flask import render_template, request, redirect, url_for, flash, session, abort
+from werkzeug.utils import secure_filename
 
 
 ###
@@ -33,7 +34,7 @@ def add_file():
 
     if request.method == 'POST':
         file = request.files['file']
-        filename = file.filename
+        filename = secure_filename(file.filename)
         file.save(os.path.join(filefolder, filename))
 
         flash('File Saved')
